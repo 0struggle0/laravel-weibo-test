@@ -11,7 +11,7 @@ class UsersController extends Controller
     public function __construct()
     {
         $this->middleware('auth', [
-            'except' => ['create', 'store', 'index']
+            'except' => ['show', 'create', 'store', 'index']
         ]);
 
         $this->middleware('guest', [
@@ -64,6 +64,7 @@ class UsersController extends Controller
         return view('users.edit', compact('user'));
     }
 
+    // 更新用户信息
     public function update(User $user, Request $request)
     {
         $this->authorize('update', $user);
@@ -82,5 +83,14 @@ class UsersController extends Controller
         session()->flash('success', '个人资料更新成功！');
 
         return redirect()->route('users.show', $user->id);
+    }
+
+    // 删除用户
+    public function destroy(User $user)
+    {
+        $this->authorize('destroy', $user);
+        $user->delete();
+        session()->flash('success', '成功删除用户！');
+        return back();
     }
 }
