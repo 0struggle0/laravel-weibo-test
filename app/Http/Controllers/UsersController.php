@@ -8,16 +8,30 @@ use Auth;
 
 class UsersController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', [
+            'except' => ['create', 'store']
+        ]);
+
+        $this->middleware('guest', [
+            'only' => ['create']
+        ]);
+    }
+
+    // 注册页面
     public function create()
     {
         return view('users.create');
     }
 
+    // 用户信息页面
     public function show(User $user)
     {
         return view('users.show', compact('user'));
     }
 
+    // 创建用户
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -37,13 +51,16 @@ class UsersController extends Controller
         return redirect()->route('users.show', [$user]);
     }
 
+    // 用户信息编辑页面
     public function edit(User $user)
     {
+        $this->authorize('update', $user);
         return view('users.edit', compact('user'));
     }
 
     public function update(User $user, Request $request)
     {
+        $this->authorize('update', $user);
         $this->validate($request, [
             'name' => 'required|max:50',
             'password' => 'nullable|confirmed|min:6'
@@ -58,6 +75,6 @@ class UsersController extends Controller
 
         session()->flash('success', '个人资料更新成功！');
 
-        return redirect()->route('users.show', $user);
+        return redirect()->route('users.show', $user->id);
     }
 }
